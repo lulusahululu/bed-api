@@ -1,0 +1,45 @@
+# DigitalOcean App Platform Configuration
+name: bed-results-scraper-api
+region: nyc
+
+services:
+- name: api
+  source_dir: /
+  github:
+    repo: your-username/bed-api  # Replace with your GitHub repo
+    branch: main
+  run_command: npm run start:prod
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  
+  # Environment variables
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+  - key: RATE_LIMIT_REQUESTS
+    value: "100"
+  - key: RATE_LIMIT_WINDOW_MS
+    value: "60000"
+  - key: LOG_LEVEL
+    value: "info"
+  
+  # Health check
+  health_check:
+    http_path: /
+    
+  # HTTP configuration
+  http_port: 8080
+  
+  # Routes
+  routes:
+  - path: /
+  
+# Optional: Add a database if you want to integrate Supabase later
+# databases:
+# - name: postgres-db
+#   engine: PG
+#   production: false
+#   version: "15"

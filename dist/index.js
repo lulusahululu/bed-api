@@ -11,7 +11,7 @@ const app = new Hono();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000');
-const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100');
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '200');
 // Middleware
 app.use('*', cors({
     origin: NODE_ENV === 'development' ? '*' : [], // Configure for production
