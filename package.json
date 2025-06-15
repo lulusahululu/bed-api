@@ -1,0 +1,31 @@
+{
+  "name": "bed-api",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:prod": "NODE_ENV=production node dist/index.js",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "postbuild": "echo 'Build completed successfully'",
+    "type-check": "tsc --noEmit",
+    "test": "echo 'Tests not yet implemented'",
+    "lint": "echo 'Linting not yet configured'"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "@supabase/supabase-js": "^2.50.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "hono": "^4.7.11",
+    "playwright": "^1.53.0",
+    "tesseract.js": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.8.3"
+  }
+}
