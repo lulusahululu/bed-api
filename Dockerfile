@@ -14,10 +14,6 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont
 
-# Set Playwright to use installed Chromium
-ENV PLAYWRIGHT_BROWSERS_PATH=/usr/bin/chromium-browser
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
 # Copy package files
 COPY package*.json ./
 
@@ -26,6 +22,9 @@ RUN npm ci --only=production
 
 # Copy source code
 COPY . .
+
+# Install Playwright browsers
+RUN npx playwright install chromium --with-deps
 
 # Build TypeScript
 RUN npm run build
