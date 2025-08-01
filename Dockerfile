@@ -1,5 +1,5 @@
-# Use Node.js LTS version
-FROM node:18-alpine
+# Use Bun
+FROM oven/bun:1-alpine
 
 # Set working directory
 WORKDIR /app
@@ -12,30 +12,38 @@ RUN apk add --no-cache \
     freetype-dev \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    wget
+
+# Set Playwright to use system Chromium
+ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # Copy package files
-COPY package*.json ./
+COPY package.json bun.lockb* ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN bun install --frozen-lockfile --production
 
 # Copy source code
 COPY . .
 
-# Install Playwright browsers
-RUN npx playwright install chromium --with-deps
+# Install dev dependencies for build
+RUN bun install --frozen-lockfile
 
 # Build TypeScript
-RUN npm run build
+RUN bun run build
+
+# Remove dev dependencies after build
+RUN bun install --frozen-lockfile --production
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
+RUN addgroup -g 1001 -S bunuser
+RUN adduser -S bunuser -u 1001
 
 # Change ownership of the app directory
-RUN chown -R nodejs:nodejs /app
-USER nodejs
+RUN chown -R bunuser:bunuser /app
+USER bunuser
 
 # Expose port (DigitalOcean App Platform uses PORT env var)
 EXPOSE 3000
@@ -52,4 +60,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     req.end();"
 
 # Start the application
-CMD ["npm", "run", "start:prod"]
+CMD ["bun", "run", "start:prod"]
