@@ -34,8 +34,15 @@ app.use("*", requestLogger);
 
 // Rate limiting (apply to API routes only, skip if disabled)
 if (!DISABLE_RATE_LIMITING) {
-  app.use("/api/*", rateLimiting(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS));
-  console.log(`🛡️  Rate limiting enabled: ${RATE_LIMIT_MAX_REQUESTS} requests per ${RATE_LIMIT_WINDOW_MS / 1000}s`);
+  app.use(
+    "/api/*",
+    rateLimiting(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS)
+  );
+  console.log(
+    `🛡️  Rate limiting enabled: ${RATE_LIMIT_MAX_REQUESTS} requests per ${
+      RATE_LIMIT_WINDOW_MS / 1000
+    }s`
+  );
 } else {
   console.log("⚠️  Rate limiting disabled");
 }
