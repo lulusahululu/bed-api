@@ -16,8 +16,9 @@ const RATE_LIMIT_WINDOW_MS = parseInt(
   process.env.RATE_LIMIT_WINDOW_MS || "60000"
 );
 const RATE_LIMIT_MAX_REQUESTS = parseInt(
-  process.env.RATE_LIMIT_MAX_REQUESTS || "200"
+  process.env.RATE_LIMIT_MAX_REQUESTS || "500"
 );
+const DISABLE_RATE_LIMITING = process.env.DISABLE_RATE_LIMITING === "true";
 
 // Middleware
 app.use(
@@ -31,8 +32,13 @@ app.use("*", logger());
 app.use("*", prettyJSON());
 app.use("*", requestLogger);
 
-// Rate limiting (apply to API routes only)
-app.use("/api/*", rateLimiting(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS));
+// Rate limiting (apply to API routes only, skip if disabled)
+if (!DISABLE_RATE_LIMITING) {
+  app.use("/api/*", rateLimiting(RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX_REQUESTS));
+  console.log(`🛡️  Rate limiting enabled: ${RATE_LIMIT_MAX_REQUESTS} requests per ${RATE_LIMIT_WINDOW_MS / 1000}s`);
+} else {
+  console.log("⚠️  Rate limiting disabled");
+}
 
 // Health check
 app.get("/", (c) => {
@@ -100,11 +106,13 @@ async function startServer() {
         `🚀 BEd Results Scraper API is running on http://localhost:${info.port}`
       );
       console.log(`📊 Environment: ${NODE_ENV}`);
-      console.log(
-        `🛡️  Rate limiting: ${RATE_LIMIT_MAX_REQUESTS} requests per ${
-          RATE_LIMIT_WINDOW_MS / 1000
-        }s`
-      );
+      if (!DISABLE_RATE_LIMITING) {
+        console.log(
+          `🛡️  Rate limiting: ${RATE_LIMIT_MAX_REQUESTS} requests per ${
+            RATE_LIMIT_WINDOW_MS / 1000
+          }s`
+        );
+      }
       console.log(`📊 Health check: http://localhost:${info.port}`);
       console.log(
         `🔍 Scraper endpoints: http://localhost:${info.port}/api/scraper`

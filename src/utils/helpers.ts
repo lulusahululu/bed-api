@@ -44,10 +44,30 @@ export class RateLimiter {
   private requests: Map<string, number[]> = new Map();
   private windowMs: number;
   private maxRequests: number;
+  private cleanupInterval: NodeJS.Timeout;
 
-  constructor(windowMs: number = 60000, maxRequests: number = 30) {
+  constructor(windowMs: number = 60000, maxRequests: number = 500) {
     this.windowMs = windowMs;
     this.maxRequests = maxRequests;
+    
+    // Clean up old entries every 30 seconds to prevent memory leaks
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 30000);
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+    
+    for (const [identifier, requests] of this.requests.entries()) {
+      const validRequests = requests.filter(time => time > windowStart);
+      if (validRequests.length === 0) {
+        this.requests.delete(identifier);
+      } else {
+        this.requests.set(identifier, validRequests);
+      }
+    }
   }
 
   isAllowed(identifier: string): boolean {
@@ -100,6 +120,13 @@ export class RateLimiter {
     const oldestRequest = Math.min(...requests);
     return oldestRequest + this.windowMs;
   }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.requests.clear();
+  }
 }
 
 export function createResponseHeaders(processingTime?: number) {
@@ -135,21 +162,46 @@ export async function requestLogger(c: Context, next: Next) {
 }
 
 // Hono middleware for rate limiting
-export function rateLimiting(windowMs: number = 60000, maxRequests: number = 30) {
+export function rateLimiting(windowMs: number = 60000, maxRequests: number = 500) {
   const limiter = new RateLimiter(windowMs, maxRequests);
   
   return async (c: Context, next: Next) => {
+    // In development, be more lenient with rate limiting
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const effectiveMaxRequests = isDevelopment ? maxRequests * 2 : maxRequests;
+    
     const clientIP = c.req.header('x-forwarded-for') || 
                      c.req.header('x-real-ip') || 
+                     c.req.header('cf-connecting-ip') ||
                      'unknown';
     
-    if (!limiter.isAllowed(clientIP)) {
+    // Create a more specific identifier for rate limiting
+    const userAgent = c.req.header('user-agent') || 'unknown';
+    const identifier = `${clientIP}-${userAgent.substring(0, 50)}`;
+    
+    if (!limiter.isAllowed(identifier)) {
+      const remaining = limiter.getRemainingRequests(identifier);
+      const resetTime = limiter.getResetTime(identifier);
+      
+      // Add rate limit headers
+      c.res.headers.set('X-RateLimit-Limit', maxRequests.toString());
+      c.res.headers.set('X-RateLimit-Remaining', remaining.toString());
+      c.res.headers.set('X-RateLimit-Reset', resetTime.toString());
+      
       return c.json({
+        success: false,
         error: 'Rate limit exceeded',
-        message: `Maximum ${maxRequests} requests per ${windowMs / 1000} seconds allowed`,
-        retryAfter: Math.ceil(windowMs / 1000)
+        message: `Maximum ${effectiveMaxRequests} requests per ${windowMs / 1000} seconds allowed`,
+        retryAfter: Math.ceil((resetTime - Date.now()) / 1000),
+        remaining: remaining,
+        resetTime: new Date(resetTime).toISOString()
       }, 429);
     }
+    
+    // Add rate limit info to successful requests
+    const remaining = limiter.getRemainingRequests(identifier);
+    c.res.headers.set('X-RateLimit-Limit', effectiveMaxRequests.toString());
+    c.res.headers.set('X-RateLimit-Remaining', remaining.toString());
     
     await next();
   };

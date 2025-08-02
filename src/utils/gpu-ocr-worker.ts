@@ -29,11 +29,15 @@ export class GPUOCRWorker {
   async initialize(options: OCRWorkerOptions = {}): Promise<void> {
     if (this.isInitialized) return;
 
-    const useOptimization = options.useOptimization ?? CONFIG.GPU_ACCELERATION.ENABLED;
-    const workerCount = options.workerThreads || CONFIG.GPU_ACCELERATION.WORKER_THREADS;
-    
+    const useOptimization =
+      options.useOptimization ?? CONFIG.GPU_ACCELERATION.ENABLED;
+    const workerCount =
+      options.workerThreads || CONFIG.GPU_ACCELERATION.WORKER_THREADS;
+
     console.log(
-      `🚀 Initializing ${workerCount} OCR workers with ${useOptimization ? 'SIMD optimization' : 'standard'} acceleration...`
+      `🚀 Initializing ${workerCount} OCR workers with ${
+        useOptimization ? "SIMD optimization" : "standard"
+      } acceleration...`
     );
 
     const initPromises = Array.from(
@@ -63,7 +67,11 @@ export class GPUOCRWorker {
           textord_tablefind_show_hlines: "0",
         });
 
-        console.log(`✅ ${useOptimization ? 'SIMD-optimized' : 'Standard'} OCR Worker ${index + 1} initialized`);
+        console.log(
+          `✅ ${useOptimization ? "SIMD-optimized" : "Standard"} OCR Worker ${
+            index + 1
+          } initialized`
+        );
         return worker;
       }
     );
@@ -71,7 +79,9 @@ export class GPUOCRWorker {
     this.workers = await Promise.all(initPromises);
     this.isInitialized = true;
     console.log(
-      `🎉 All ${workerCount} OCR workers ready with ${useOptimization ? 'SIMD optimization' : 'standard processing'}`
+      `🎉 All ${workerCount} OCR workers ready with ${
+        useOptimization ? "SIMD optimization" : "standard processing"
+      }`
     );
   }
 

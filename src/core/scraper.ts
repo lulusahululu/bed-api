@@ -153,9 +153,7 @@ export class BedResultsScraper {
 
       // Process API response
       if (result.state === "success") {
-        console.log(
-          "✅ Result found successfully! Roll Number: " + rollNumber
-        );
+        console.log("✅ Result found successfully! Roll Number: " + rollNumber);
 
         // Also parse the HTML table for additional data
         const tableData = await this.parseResultsTable();

@@ -58,11 +58,13 @@ MAX_WORKERS=4
 ## 🚀 Usage
 
 Start the server:
+
 ```bash
 npm run dev
 ```
 
 The API will be available at:
+
 ```
 http://localhost:3000
 ```
@@ -70,11 +72,13 @@ http://localhost:3000
 ## 📚 API Endpoints
 
 ### Health Check
+
 ```http
 GET /
 ```
 
 ### Single Roll Number
+
 ```http
 POST /api/scraper/single
 Content-Type: application/json
@@ -89,6 +93,7 @@ Content-Type: application/json
 ```
 
 ### Batch Processing
+
 ```http
 POST /api/scraper/batch
 Content-Type: application/json
@@ -103,11 +108,13 @@ Content-Type: application/json
 ```
 
 ### Performance Metrics
+
 ```http
 GET /api/scraper/performance
 ```
 
 ### Clear Cache
+
 ```http
 DELETE /api/scraper/cache
 ```
@@ -115,24 +122,26 @@ DELETE /api/scraper/cache
 ## ⚡ Performance Improvements
 
 ### GPU Acceleration
+
 - **3x faster OCR**: WebGL and SIMD optimizations
 - **Parallel processing**: Multiple OCR workers running simultaneously
 - **Optimized configurations**: Tuned Tesseract parameters for speed
 
 ### Removed Dependencies
+
 - **No Redis**: Simplified setup with in-memory caching
 - **No try-catch overhead**: Direct error handling for better performance
 - **Streamlined architecture**: Reduced complexity and faster execution
 
 ## 🔥 GPU vs CPU Performance
 
-| Feature | CPU Mode | GPU Mode |
-|---------|----------|----------|
-| OCR Speed | ~5-8 seconds | ~1-3 seconds |
-| Worker Threads | 2 | 4 |
-| Parallel Processing | Limited | Full |
-| Memory Usage | Higher | Lower |
-| Setup Complexity | Simple | Simple |
+| Feature             | CPU Mode     | GPU Mode     |
+| ------------------- | ------------ | ------------ |
+| OCR Speed           | ~5-8 seconds | ~1-3 seconds |
+| Worker Threads      | 2            | 4            |
+| Parallel Processing | Limited      | Full         |
+| Memory Usage        | Higher       | Lower        |
+| Setup Complexity    | Simple       | Simple       |
 
 ## 🐳 Docker Deployment
 

@@ -1,4 +1,4 @@
- // CPU-optimized captcha solving utility with SIMD acceleration
+// CPU-optimized captcha solving utility with SIMD acceleration
 import Tesseract from "tesseract.js";
 import { createHash } from "crypto";
 import { CONFIG } from "../config/index.js";
@@ -100,7 +100,9 @@ export class OptimizedCaptchaSolver {
     }
 
     this.cacheMisses++;
-    console.log(`[SIMD-OCR] Attempt ${attempt} - solving captcha with SIMD acceleration`);
+    console.log(
+      `[SIMD-OCR] Attempt ${attempt} - solving captcha with SIMD acceleration`
+    );
 
     // Preprocess image
     const processedBuffer = await this.preprocessImage(imageBuffer);
@@ -199,7 +201,9 @@ export class OptimizedCaptchaSolver {
         totalHits: this.cacheHits,
         totalMisses: this.cacheMisses,
         overallHitRate:
-          this.cacheHits > 0 ? (this.cacheHits / (this.cacheHits + this.cacheMisses)) * 100 : 0,
+          this.cacheHits > 0
+            ? (this.cacheHits / (this.cacheHits + this.cacheMisses)) * 100
+            : 0,
       },
     };
   }
